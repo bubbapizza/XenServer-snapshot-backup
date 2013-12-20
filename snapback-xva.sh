@@ -15,27 +15,40 @@
 
 # Temporary snapshots will be use this as a suffix
 SNAPSHOT_SUFFIX=snapback
+
 # Temporary backup templates will use this as a suffix
 TEMP_SUFFIX=newbackup
+
 # Backup templates will use this as a suffix, along with the date
 BACKUP_SUFFIX=backup
+
 # What day to run weekly backups on
 WEEKLY_ON="Sun"
+
 # What day to run monthly backups on. These will run on the first day
 # specified below of the month.
 MONTHLY_ON="Sun"
+
 # Temporary file
 TEMP=/tmp/snapback.$$
+
 # UUID of the destination SR for backups
 TEMPLATE_SR=81548d46-4f0e-fada-927c-e2177eb49943
+
 # UUID of the destination SR for XVA files it must be an NFS SR
 XVA_SR=557dec09-333c-37be-6c1f-0e6d787b905a
+
 
 LOCKFILE=/tmp/snapback.lock
 
 #Cicle control flags
 SKIP_TEMPLATE=1
 SKIP_XVA=1
+
+#
+# Don't modify below this line
+#
+###############################################################
 
 if [ -f $LOCKFILE ]; then
         echo "Lockfile $LOCKFILE exists, exiting!"
@@ -44,9 +57,6 @@ fi
 
 touch $LOCKFILE
 
-#
-# Don't modify below this line
-#
 
 # Date format must be %Y%m%d so we can sort them
 BACKUP_DATE=$(date +"%Y%m%d")

@@ -14,19 +14,31 @@
 
 # Temporary snapshots will be use this as a suffix
 SNAPSHOT_SUFFIX=snapback
+
 # Temporary backup templates will use this as a suffix
 TEMP_SUFFIX=newbackup
+
 # Backup templates will use this as a suffix, along with the date
 BACKUP_SUFFIX=backup
+
 # What day to run weekly backups on
 WEEKLY_ON="Sun"
+
 # What day to run monthly backups on. These will run on the first day
 # specified below of the month.
 MONTHLY_ON="Sun"
+
 # Temporary file
 TEMP=/tmp/snapback.$$
+
 # UUID of the destination SR for backups
 DEST_SR=e871f2df-a195-9c50-5377-be55e749c003
+
+
+#
+# Don't modify below this line
+#
+#################################################################################
 
 LOCKFILE=/tmp/snapback.lock
 
@@ -37,9 +49,6 @@ fi
 
 touch $LOCKFILE
 
-#
-# Don't modify below this line
-#
 
 # Date format must be %Y%m%d so we can sort them
 BACKUP_DATE=$(date +"%Y%m%d")
