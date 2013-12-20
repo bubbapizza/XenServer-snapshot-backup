@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# This builds the configure file.
+
+aclocal
+automake --add-missing --copy
+autoconf
