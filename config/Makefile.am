@@ -1,2 +1,2 @@
 pkgsysconfdir = ${sysconfdir}
-dist_pkgsysconf_DATA = xenserver-backup.conf
+dist_pkgsysconf_DATA = xenserver-backup.conf xe.pwf

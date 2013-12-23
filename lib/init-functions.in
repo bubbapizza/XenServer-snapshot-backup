@@ -31,9 +31,53 @@ DB_PATH=${DB_PATH:-'@DB_PATH@'}
 DB_DEFAULT=${DB_DEFAULT:-'@DB_DEFAULT@'}
 
 # Build the xe command with all the connection info.
-XE="xe -s ${SERVER} -u ${USERNAME} -pw ${PASSWORD}"
+XE="xe -h ${XE_HOST} -pwf ${XE_PWF}"
 
 
 #########
 # FUNCTIONS
 #########
+
+# Quick hack to grab the required paramater from the output of the xe command
+function xe_param()
+{
+    PARAM=$1
+    while read DATA; do
+        LINE=$(echo $DATA | egrep "$PARAM")
+        if [ $? -eq 0 ]; then
+            echo "$LINE" | awk 'BEGIN{FS=": "}{print $2}'
+        fi
+    done
+}
+
+
+# Deletes a snapshot's VDIs before uninstalling it. This is needed as 
+# snapshot-uninstall seems to sometimes leave "stray" VDIs in SRs
+function delete_snapshot()
+{
+    DELETE_SNAPSHOT_UUID=$1
+    for VDI_UUID in $(${XE} vbd-list vm-uuid=$DELETE_SNAPSHOT_UUID empty=false | xe_param "vdi-uuid"); do
+            echo "Deleting snapshot VDI : $VDI_UUID"
+            ${XE} vdi-destroy uuid=$VDI_UUID
+    done
+
+    # Now we can remove the snapshot itself
+    echo "Removing snapshot with UUID : $DELETE_SNAPSHOT_UUID"
+    ${XE} snapshot-uninstall uuid=$DELETE_SNAPSHOT_UUID force=true
+}
+
+# See above - templates also seem to leave stray VDIs around...
+function delete_template()
+{
+    DELETE_TEMPLATE_UUID=$1
+    for VDI_UUID in $(${XE} vbd-list vm-uuid=$DELETE_TEMPLATE_UUID empty=false | xe_param "vdi-uuid"); do
+            echo "Deleting template VDI : $VDI_UUID"
+            ${XE} vdi-destroy uuid=$VDI_UUID
+    done
+
+    # Now we can remove the template itself
+    echo "Removing template with UUID : $DELETE_TEMPLATE_UUID"
+    ${XE} template-uninstall template-uuid=$DELETE_TEMPLATE_UUID force=true
+}
+
+
