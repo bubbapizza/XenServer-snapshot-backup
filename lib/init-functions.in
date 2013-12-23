@@ -19,7 +19,7 @@ DATADIR=@datadir@/@PACKAGE@
 LOGDIR=@localstatedir@/log/@PACKAGE@
 LIBDIR=@datadir@/@PACKAGE@
 LIBEXECDIR=@localstatedir@/lib/@PACKAGE@
-CONFIGDIR=@sysconfdir@
+CONFIGDIR=@sysconfdir@/@PACKAGE@
 
 
 # The presence of this lock file prevents clients from starting up.

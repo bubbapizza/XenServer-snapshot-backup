@@ -6,6 +6,14 @@
 
 # Uncomment any of the variables below to change their default values.
 
+#
+# Set the xenserver hostname/ip and pwf file for the xe command.
+# The pwf file has two lines, first line is the username, second
+# line is the password for logging into the host.
+#
+# XE_HOST=@XE_HOST@
+# XE_PWF=@XE_PWF@
+
 # Temporary snapshots will be use this as a suffix.
 # SNAPSHOT_SUFFIX=@SNAPSHOT_SUFFIX@
 

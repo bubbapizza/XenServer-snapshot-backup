@@ -7,11 +7,17 @@ AM_INIT_AUTOMAKE
 
 # Allow the user to pass the progress install directory as a variable.
 AC_ARG_VAR(XVA_PATH, "The default path for xva backups")
+AC_ARG_VAR(XE_HOST, "The xe hostname or IP address.")
+AC_ARG_VAR(XE_PWF, "The filepath for the xe credentials file")
 
 
-# Set the default database location and name.
+# Set the default xva backup location and xe password file.
 AS_AC_EXPAND(LOCALSTATEDIR, ${localstatedir}/lib/${PACKAGE})
-AC_SUBST(XVA_PATH, [${DB_PATH:-${LOCALSTATEDIR}}])
+AS_AC_EXPAND(SYSCONFDIR, ${sysconfdir}/${PACKAGE})
+AC_SUBST(XVA_PATH, [${XVA_PATH:-${LOCALSTATEDIR}}])
+AC_SUBST(XE_HOST, [${XVA_PATH:-"127.0.0.1"}])
+AC_SUBST(XE_PWF, [${XE_PWF:-${SYSCONFDIR}/xe.pwf}])
+
 
 # Here's the default config values.
 AC_SUBST(SNAPSHOT_SUFFIX, [snapback])
