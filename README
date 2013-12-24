@@ -6,6 +6,19 @@ install on a linux VM that can act as a backup appliance.  It will control
 snapshot-based backups to either another storage repository or to xva 
 files for DR sites.
 
+As for how the backup script works, from Luis' blog:
+
+You can configure the scheduling and retention for each VM, from the 
+XenCenter, by adding the following custom fields:
+
+    backup - to set the schedule for the template backups 
+             (daily, monthly or weekly)
+    retain - to set the number of backup templates to keep
+    xva_backup - to set the schedule for the xva backups 
+                 (daily, monthly or weekly)
+    xva_retain - to set the number of xva files to keep
+  
+
 Shawn Wilson
 swilson@acs.on.ca
 
