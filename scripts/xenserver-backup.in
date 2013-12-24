@@ -9,8 +9,11 @@
 # 1.2 : Tidied output, removed VDIs before deleting snapshots and templates
 # 1.1 : Added missing force=true paramaters to snapshot uninstall calls.
 
+prefix=@prefix@
+
+
 # Initialize functions and package variables.
-. @datadir@/@PACKAGE@/init-functions 
+. @datadir@/@PACKAGE@/init-functions
 
 # If a lockfile exists, we're already running a backup!
 if [ -f $LOCKFILE ]; then

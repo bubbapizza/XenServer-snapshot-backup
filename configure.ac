@@ -15,7 +15,7 @@ AC_ARG_VAR(XE_PWF, "The filepath for the xe credentials file")
 AS_AC_EXPAND(LOCALSTATEDIR, ${localstatedir}/lib/${PACKAGE})
 AS_AC_EXPAND(SYSCONFDIR, ${sysconfdir}/${PACKAGE})
 AC_SUBST(XVA_PATH, [${XVA_PATH:-${LOCALSTATEDIR}}])
-AC_SUBST(XE_HOST, [${XVA_PATH:-"127.0.0.1"}])
+AC_SUBST(XE_HOST, [${XVA_HOST:-"127.0.0.1"}])
 AC_SUBST(XE_PWF, [${XE_PWF:-${SYSCONFDIR}/xe.pwf}])
 
 
@@ -32,5 +32,5 @@ AC_SUBST(TEMPLATE_SR, [BackupSR])
 AC_CONFIG_FILES(
    [Makefile scripts/Makefile config/Makefile lib/Makefile 
     scripts/xenserver-backup lib/init-functions 
-    config/default.conf])
+    config/default.conf config/default.crontab])
 AC_OUTPUT
