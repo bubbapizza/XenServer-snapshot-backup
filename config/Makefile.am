@@ -1,2 +1,2 @@
 pkgsysconfdir = ${sysconfdir}
-dist_pkgsysconf_DATA = xenserver-backup.conf xe.pwf
+dist_pkgsysconf_DATA = default.conf xe.pwf default.crontab 

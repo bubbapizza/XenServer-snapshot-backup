@@ -32,5 +32,5 @@ AC_SUBST(TEMPLATE_SR, [BackupSR])
 AC_CONFIG_FILES(
    [Makefile scripts/Makefile config/Makefile lib/Makefile 
     scripts/xenserver-backup lib/init-functions 
-    config/default-config])
+    config/default.conf])
 AC_OUTPUT
