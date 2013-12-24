@@ -1,4 +1,4 @@
 # This is a sample crontab file that you can symlink to under /etc/cron.d
 # in order to schedule the backup time.
 #
-2 1 * * * root @bindir@/xenserver-backup > @localstatedir@/log/xenserver-backup.log 2>&1
+2 1 * * * root @BINDIR@/xenserver-backup > @LOCALSTATEDIR@/log/xenserver-backup.log 2>&1

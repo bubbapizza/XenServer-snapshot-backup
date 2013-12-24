@@ -11,9 +11,12 @@ AC_ARG_VAR(XE_HOST, "The xe hostname or IP address.")
 AC_ARG_VAR(XE_PWF, "The filepath for the xe credentials file")
 
 
-# Set the default xva backup location and xe password file.
+# Here we have to expand the standard autoconf directories into their
+# own variables so we can substitute them into the config & crontab
+# files.
 AS_AC_EXPAND(LOCALSTATEDIR, ${localstatedir}/lib/${PACKAGE})
 AS_AC_EXPAND(SYSCONFDIR, ${sysconfdir}/${PACKAGE})
+AS_AC_EXPAND(BINDIR, ${sysconfdir}/${PACKAGE})
 AC_SUBST(XVA_PATH, [${XVA_PATH:-${LOCALSTATEDIR}}])
 AC_SUBST(XE_HOST, [${XVA_HOST:-"127.0.0.1"}])
 AC_SUBST(XE_PWF, [${XE_PWF:-${SYSCONFDIR}/xe.pwf}])
