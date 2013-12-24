@@ -27,6 +27,10 @@ touch $LOCKFILE
 # Date format must be %Y%m%d so we can sort them
 BACKUP_DATE=$(date +"%Y%m%d")
 
+# Temporary file
+TEMP=/tmp/snapback.$$
+
+
 echo " "
 echo "=== Snapshot backup started at $(date) ==="
 echo " "
@@ -45,6 +49,7 @@ for VM in $RUNNING_VMS; do
     #Template backups
     SCHEDULE=$(${XE} vm-param-get uuid=$VM param-name=other-config param-key=XenCenter.CustomFields.backup)    
     RETAIN=$(${XE} vm-param-get uuid=$VM param-name=other-config param-key=XenCenter.CustomFields.retain)    
+
     #XVA Backups
     XVA_SCHEDULE=$(${XE} vm-param-get uuid=$VM param-name=other-config param-key=XenCenter.CustomFields.xva_backup)    
     XVA_RETAIN=$(${XE} vm-param-get uuid=$VM param-name=other-config param-key=XenCenter.CustomFields.xva_retain)    
@@ -89,6 +94,8 @@ for VM in $RUNNING_VMS; do
             fi
         fi
     fi
+
+
 ############################ Check XVA Schedule ##############################
     if [[ "$XVA_SCHEDULE" == "" || "$XVA_RETAIN" == "" ]]; then
         echo "No schedule or retention set for XVA backup, skipping this VM"
@@ -132,7 +139,7 @@ for VM in $RUNNING_VMS; do
     fi
     
     echo "= Checking snapshots for $VM_NAME ="
-    VM_SNAPSHOT_CHECK=$(${XE} snapshot-list name-label="$VM_NAME-$SNAPSHOT_SUFFIX" | xe_param uuid)
+    VM_SNAPSHOT_CHECK=$(${XE} snapshot-list name-label="${VM_NAME}-${SNAPSHOT_SUFFIX}" | xe_param uuid)
     if [ "$VM_SNAPSHOT_CHECK" != "" ]; then
         echo "Found old backup snapshot : $VM_SNAPSHOT_CHECK"
         echo "Deleting..."
@@ -142,24 +149,19 @@ for VM in $RUNNING_VMS; do
 
     echo "= Creating snapshot backup ="
 
-    # Select appropriate snapshot command
-    # See above - not using this yet, as have to work around failures
-    #if [ "$QUIESCE" == "true" ]; then
-    #    echo "Using VSS plugin"
-    #    SNAPSHOT_CMD="vm-snapshot-with-quiesce"
-    #else
-    #    echo "Not using VSS plugin, disks will not be quiesced"
-    #    SNAPSHOT_CMD="vm-snapshot"
-    #fi
     SNAPSHOT_CMD="vm-snapshot"
 
     SNAPSHOT_UUID=$(${XE} $SNAPSHOT_CMD vm="$VM_NAME" new-name-label="$VM_NAME-$SNAPSHOT_SUFFIX")
     echo "Created snapshot with UUID : $SNAPSHOT_UUID"
 
-    #Backup to template
+    #
+    # Backup to template.
+    #
     if [ "$SKIP_TEMPLATE" == "0" ]; then
         echo "= Copying snapshot to SR ="
-        # Check there isn't a stale template with TEMP_SUFFIX name hanging around from a failed job
+
+        # Check there isn't a stale template with TEMP_SUFFIX name hanging 
+        # around from a failed job
         TEMPLATE_TEMP="$(${XE} template-list name-label="$VM_NAME-$TEMP_SUFFIX" | xe_param uuid)"
         if [ "$TEMPLATE_TEMP" != "" ]; then
             echo "Found a stale temporary template, removing UUID $TEMPLATE_TEMP"
@@ -172,7 +174,8 @@ for VM in $RUNNING_VMS; do
         # Sort -n, head -n -$RETAIN
         # Loop through and remove each one
         echo "= Removing old template backups ="
-        ${XE} template-list | grep "$VM_NAME-$BACKUP_SUFFIX" | xe_param name-label | sort -n | head -n-$RETAIN > $TEMP
+
+        ${XE} template-list | grep "$VM_NAME-$BACKUP_SUFFIX" | xe_param name-label | sort -n | head -n-${RETAIN} > $TEMP
         while read OLD_TEMPLATE; do
             OLD_TEMPLATE_UUID=$(${XE} template-list name-label="$OLD_TEMPLATE" | xe_param uuid)
             echo "Removing : $OLD_TEMPLATE with UUID $OLD_TEMPLATE_UUID"
@@ -192,19 +195,22 @@ for VM in $RUNNING_VMS; do
         echo "Done."
     fi
 
-    #Backup to XVA
+    #
+    # Backup to XVA.
+    #
     if [ "$SKIP_XVA" == "0" ]; then
+        VM = ${XVA_PATH}/${VM_NAME}-${BACKUP_SUFFIX}
         echo "= Exporting VM to file ="
+
         #Creates a XVA file from the snapshot
-        EXPORT_CMD="vm-export"
-        ${XE} $EXPORT_CMD vm=$SNAPSHOT_UUID filename="/var/run/sr-mount/$XVA_SR/$VM_NAME-$BACKUP_SUFFIX-$BACKUP_DATE.xva"
+        ${XE} vm-export vm=${SNAPSHOT_UUID} filename="${VM}-${BACKUP_DATE}.xva"
         echo "Done."
         
         # List XVA files for all VMs, grep for $VM_NAME-$BACKUP_SUFFIX
         # Sort -n, head -n -$RETAIN
         # Loop through and remove each one
         echo "= Removing old XVA files ="
-        ls -1 /var/run/sr-mount/$XVA_SR/*.xva | grep "$VM_NAME-$BACKUP_SUFFIX" | sort -n | head -n-$XVA_RETAIN > $TEMP
+        ls -1 ${VM}*.xva | sort -n | head -n-${XVA_RETAIN}> $TEMP
         while read OLD_TEMPLATE; do
             echo "Removing : $OLD_TEMPLATE"
             rm $OLD_TEMPLATE
@@ -219,8 +225,8 @@ for VM in $RUNNING_VMS; do
     echo " "
 done
 
-${XE} vdi-list sr-uuid=$TEMPLATE_SR > /var/run/sr-mount/$TEMPLATE_SR/mapping.txt
-${XE} vbd-list > /var/run/sr-mount/$TEMPLATE_SR/vbd-mapping.txt
+${XE} vdi-list sr-uuid=${TEMPLATE_SR} > ${XVA_PATH}/mapping.txt
+${XE} vbd-list > ${XVA_PATH}/vbd-mapping.txt
 
 echo "=== Snapshot backup finished at $(date) ==="
 echo " "
@@ -228,7 +234,11 @@ echo "=== Metadata backup started at $(date) ==="
 echo " "
 
 #Backup Pool meta-data:
-xe-backup-metadata -c -k 10 -u $TEMPLATE_SR 
+${XE} pool-dump-database file-name=${XVA_PATH}/pool_metadata
+
+# NOTE: to restore metadata use:
+# xe pool-restore-database file-name=@XVA_PATH@
+# there is an option to test the backup with dry-run=true
 
 echo "=== Metadata backup finished at $(date) ==="
 echo " "
