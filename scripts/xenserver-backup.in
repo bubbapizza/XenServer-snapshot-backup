@@ -199,7 +199,7 @@ for VM in $RUNNING_VMS; do
     # Backup to XVA.
     #
     if [ "$SKIP_XVA" == "0" ]; then
-        VM = ${XVA_PATH}/${VM_NAME}-${BACKUP_SUFFIX}
+        VM=${XVA_PATH}/${VM_NAME}-${BACKUP_SUFFIX}
         echo "= Exporting VM to file ="
 
         #Creates a XVA file from the snapshot

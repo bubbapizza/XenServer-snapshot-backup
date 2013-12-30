@@ -11,7 +11,7 @@ exec_prefix=@exec_prefix@
 
 
 # Initialize all the local database startup settings, directories, etc.
-. @sysconfdir@/@PACKAGE@.conf
+. @sysconfdir@/@PACKAGE@/default.conf
 
 # Set up all the standard autotools directories.
 BINDIR=@bindir@
