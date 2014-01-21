@@ -35,109 +35,15 @@ echo " "
 echo "=== Snapshot backup started at $(date) ==="
 echo " "
 
-# Get all running VMs
-# todo: Need to check this works across a pool
-RUNNING_VMS=$(${XE} vm-list power-state=running is-control-domain=false | xe_param uuid)
-
-for VM in $RUNNING_VMS; do
-    VM_NAME="$(${XE} vm-list uuid=$VM | xe_param name-label)"
+for $VM_NAME in $VM_LIST; do
 
     echo " "
     echo "== Backup for $VM_NAME started at $(date) =="
-    echo "= Retrieving backup paramaters ="
 
-    #Template backups
-    SCHEDULE=$(${XE} vm-param-get uuid=$VM param-name=other-config param-key=XenCenter.CustomFields.backup)    
-    RETAIN=$(${XE} vm-param-get uuid=$VM param-name=other-config param-key=XenCenter.CustomFields.retain)    
-
-    #XVA Backups
-    XVA_SCHEDULE=$(${XE} vm-param-get uuid=$VM param-name=other-config param-key=XenCenter.CustomFields.xva_backup)    
-    XVA_RETAIN=$(${XE} vm-param-get uuid=$VM param-name=other-config param-key=XenCenter.CustomFields.xva_retain)    
-    
-
-############################ Check Template Schedule ##########################
-
-    #Cycle control flags
-    SKIP_TEMPLATE=1
-    SKIP_XVA=1
-
-    if [[ "$SCHEDULE" == "" || "$RETAIN" == "" ]]; then
-        echo "No schedule or retention set for template backup, skipping this VM"
-        SKIP_TEMPLATE=1
-    else
-        echo "VM template backup schedule : $SCHEDULE"
-        echo "VM template retention       : $RETAIN previous snapshots"
-
-        if [ "$SCHEDULE" == "daily" ]; then
-            SKIP_TEMPLATE=0
-        else
-            # If weekly, see if this is the correct day
-            if [ "$SCHEDULE" == "weekly" ]; then
-                if [ "$(date +'%a')" == "$WEEKLY_ON" ]; then
-                    echo "On correct day for weekly backups, running..."
-                    SKIP_TEMPLATE=0
-                else
-                    echo "Weekly backups scheduled on $WEEKLY_ON, skipping..."
-                    SKIP_TEMPLATE=1
-                fi
-            else
-                # If monthly, see if this is the correct day
-                if [ "$SCHEDULE" == "monthly" ]; then
-                    if [[ "$(date +'%a')" == "$MONTHLY_ON" && $(date '+%e') -le 7 ]]; then
-                        echo "On correct day for monthly backups, running..."
-                        SKIP_TEMPLATE=0
-                    else
-                        echo "Monthly backups scheduled on 1st $MONTHLY_ON, skipping..."
-                        SKIP_TEMPLATE=1
-                    fi
-                fi
-            fi
-        fi
-    fi
-
-
-############################ Check XVA Schedule ##############################
-    if [[ "$XVA_SCHEDULE" == "" || "$XVA_RETAIN" == "" ]]; then
-        echo "No schedule or retention set for XVA backup, skipping this VM"
-        SKIP_XVA=1
-    else
-        echo "VM XVA backup schedule : $XVA_SCHEDULE"
-        echo "VM XVA retention       : $XVA_RETAIN previous snapshots"
-
-        if [ "$XVA_SCHEDULE" == "daily" ]; then
-            SKIP_XVA=0
-        else
-            # If weekly, see if this is the correct day
-            if [ "$XVA_SCHEDULE" == "weekly" ]; then
-                if [ "$(date +'%a')" == "$WEEKLY_ON" ]; then
-                    echo "On correct day for weekly backups, running..."
-                    SKIP_XVA=0
-                else
-                    echo "Weekly backups scheduled on $WEEKLY_ON, skipping..."
-                    SKIP_XVA=1
-                fi
-            else
-                # If monthly, see if this is the correct day
-                if [ "$XVA_SCHEDULE" == "monthly" ]; then
-                    if [[ "$(date +'%a')" == "$MONTHLY_ON" && $(date '+%e') -le 7 ]]; then
-                        echo "On correct day for monthly backups, running..."
-                        SKIP_XVA=0
-                    else
-                        echo "Monthly backups scheduled on 1st $MONTHLY_ON, skipping..."
-                        SKIP_XVA=1
-                    fi
-                fi
-            fi
-        fi
-    fi
-################################################################################
-
-
-    if [[ "$SKIP_TEMPLATE" == "0" && "$SKIP_XVA" == "0" ]]; then
-        echo "Nothing to do for this VM!..."
-        continue
-    fi
-    
+    #
+    # Clean up old temporary snapshots.  In theory, there shouldn't be
+    # any but maybe a previous backup crapped out.
+    #
     echo "= Checking snapshots for $VM_NAME ="
     VM_SNAPSHOT_CHECK=$(${XE} snapshot-list name-label="${VM_NAME}-${SNAPSHOT_SUFFIX}" | xe_param uuid)
     if [ "$VM_SNAPSHOT_CHECK" != "" ]; then
@@ -147,77 +53,36 @@ for VM in $RUNNING_VMS; do
     fi
     echo "Done."
 
-    echo "= Creating snapshot backup ="
-
-    SNAPSHOT_CMD="vm-snapshot"
-
-    SNAPSHOT_UUID=$(${XE} $SNAPSHOT_CMD vm="$VM_NAME" new-name-label="$VM_NAME-$SNAPSHOT_SUFFIX")
+    #
+    # Snapshot the VM
+    #
+    echo "= Creating temporary backup snapshot ="
+    SNAPSHOT_UUID=$(${XE} vm-snapshot vm="$VM_NAME" new-name-label="$VM_NAME-$SNAPSHOT_SUFFIX")
     echo "Created snapshot with UUID : $SNAPSHOT_UUID"
-
-    #
-    # Backup to template.
-    #
-    if [ "$SKIP_TEMPLATE" == "0" ]; then
-        echo "= Copying snapshot to SR ="
-
-        # Check there isn't a stale template with TEMP_SUFFIX name hanging 
-        # around from a failed job
-        TEMPLATE_TEMP="$(${XE} template-list name-label="$VM_NAME-$TEMP_SUFFIX" | xe_param uuid)"
-        if [ "$TEMPLATE_TEMP" != "" ]; then
-            echo "Found a stale temporary template, removing UUID $TEMPLATE_TEMP"
-            delete_template $TEMPLATE_TEMP
-        fi
-        TEMPLATE_UUID=$(${XE} snapshot-copy uuid=$SNAPSHOT_UUID sr-uuid=$TEMPLATE_SR new-name-description="Snapshot created on $(date)" new-name-label="$VM_NAME-$TEMP_SUFFIX")
-        echo "Done."
-        
-        # List templates for all VMs, grep for $VM_NAME-$BACKUP_SUFFIX
-        # Sort -n, head -n -$RETAIN
-        # Loop through and remove each one
-        echo "= Removing old template backups ="
-
-        ${XE} template-list | grep "$VM_NAME-$BACKUP_SUFFIX" | xe_param name-label | sort -n | head -n-${RETAIN} > $TEMP
-        while read OLD_TEMPLATE; do
-            OLD_TEMPLATE_UUID=$(${XE} template-list name-label="$OLD_TEMPLATE" | xe_param uuid)
-            echo "Removing : $OLD_TEMPLATE with UUID $OLD_TEMPLATE_UUID"
-            delete_template $OLD_TEMPLATE_UUID
-        done < $TEMP
-        
-        # Also check there is no template with the current timestamp.
-        # Otherwise, you would not be able to backup more than once a day if you needed...
-        TODAYS_TEMPLATE="$(${XE} template-list name-label="$VM_NAME-$BACKUP_SUFFIX-$BACKUP_DATE" | xe_param uuid)"
-        if [ "$TODAYS_TEMPLATE" != "" ]; then
-            echo "Found a template already for today, removing UUID $TODAYS_TEMPLATE"
-            delete_template $TODAYS_TEMPLATE
-        fi
-
-        echo "= Renaming template ="
-        ${XE} template-param-set name-label="$VM_NAME-$BACKUP_SUFFIX-$BACKUP_DATE" uuid=$TEMPLATE_UUID
-        echo "Done."
-    fi
 
     #
     # Backup to XVA.
     #
-    if [ "$SKIP_XVA" == "0" ]; then
-        VM=${XVA_PATH}/${VM_NAME}-${BACKUP_SUFFIX}
-        echo "= Exporting VM to file ="
+    echo "= Exporting snapshot to XVA file ="
+    XVA_PREFIX=${VM_NAME}-${BACKUP_SUFFIX}
+    XVA_FILE=${XVA_PATH}/${XVA_PREFIX}-${BACKUP_DATE}.xva
+    ${XE} vm-export vm=${SNAPSHOT_UUID} filename=${XVA_FILE}
+    echo "Done."
+    
 
-        #Creates a XVA file from the snapshot
-        ${XE} vm-export vm=${SNAPSHOT_UUID} filename="${VM}-${BACKUP_DATE}.xva"
-        echo "Done."
-        
-        # List XVA files for all VMs, grep for $VM_NAME-$BACKUP_SUFFIX
-        # Sort -n, head -n -$RETAIN
-        # Loop through and remove each one
-        echo "= Removing old XVA files ="
-        ls -1 ${VM}*.xva | sort -n | head -n-${XVA_RETAIN}> $TEMP
-        while read OLD_TEMPLATE; do
-            echo "Removing : $OLD_TEMPLATE"
-            rm $OLD_TEMPLATE
-        done < $TEMP
-    fi
+    #
+    # Keep the most recent xva files.  The number of xva files to keep is 
+    # stored in $XVA_RETAIN.
+    #
+    echo "= Removing old XVA files ="
 
-    echo "= Removing temporary snapshot backup ="
+    ls -1 ${XVA_PATH}/${XVA_PREFIX}-*.xva | sort -n | head -n ${XVA_RETAIN}> $TEMP
+    while read OLD_TEMPLATE; do
+        echo "Removing : $OLD_TEMPLATE"
+        rm $OLD_TEMPLATE
+    done < $TEMP
+
+    echo "= Removing temporary backup snapshot ="
     delete_snapshot $SNAPSHOT_UUID
     echo "Done."
 
