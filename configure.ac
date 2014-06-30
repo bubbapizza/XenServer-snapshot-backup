@@ -9,6 +9,7 @@ AM_INIT_AUTOMAKE
 AC_ARG_VAR(XVA_PATH, "The default path for xva backups")
 AC_ARG_VAR(XE_HOST, "The xe hostname or IP address.")
 AC_ARG_VAR(XE_PWF, "The filepath for the xe credentials file")
+AC_ARG_VAR(VM_NAME_FILE, "The filepath for the list of VMs to backup")
 
 
 # Here we have to expand the standard autoconf directories into their
@@ -20,6 +21,7 @@ AS_AC_EXPAND(BINDIR, ${sysconfdir}/${PACKAGE})
 AC_SUBST(XVA_PATH, [${XVA_PATH:-${LOCALSTATEDIR}}])
 AC_SUBST(XE_HOST, [${XVA_HOST:-"127.0.0.1"}])
 AC_SUBST(XE_PWF, [${XE_PWF:-${SYSCONFDIR}/xe.pwf}])
+AC_SUBST(VM_NAME_FILE, [${VM_NAME_FILE:-${SYSCONFDIR}/vm-backup-list}])
 
 
 # Here's the default config values.

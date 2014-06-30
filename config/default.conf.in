@@ -12,7 +12,13 @@
 # line is the password for logging into the host.
 #
 # XE_HOST=@XE_HOST@
-# XE_PWF=@XE_PWF@
+# XE_PWF_FILE=@XE_PWF@
+
+# The list of VMs that get backed up is stored in this file.  The file
+# format is one VM per line.  Each line must have the name of the VM.
+# The VM name is stored in the 'name-label' attribute of the vm. 
+#
+# VM_NAME_FILE=@VM_NAME_FILE@
 
 # Temporary snapshots will be use this as a suffix.
 # SNAPSHOT_SUFFIX=@SNAPSHOT_SUFFIX@
@@ -35,3 +41,4 @@
 # This is the default path to dump the xva backups to.  Normally this
 # directory would be mounted over NFS to a NAS device of some sort. 
 # XVA_PATH=@XVA_PATH@
+

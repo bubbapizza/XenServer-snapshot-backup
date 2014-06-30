@@ -35,7 +35,8 @@ echo " "
 echo "=== Snapshot backup started at $(date) ==="
 echo " "
 
-for $VM_NAME in $VM_LIST; do
+# Loop through all the VMs listed in $VM_NAME_LIST file.
+while read $VM_NAME; do
 
     echo " "
     echo "== Backup for $VM_NAME started at $(date) =="
@@ -88,7 +89,7 @@ for $VM_NAME in $VM_LIST; do
 
     echo "== Backup for $VM_NAME finished at $(date) =="
     echo " "
-done
+done <${VM_NAME_LIST}
 
 ${XE} vdi-list sr-uuid=${TEMPLATE_SR} > ${XVA_PATH}/mapping.txt
 ${XE} vbd-list > ${XVA_PATH}/vbd-mapping.txt
