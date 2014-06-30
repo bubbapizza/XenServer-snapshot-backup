@@ -83,10 +83,6 @@ while read VM_NAME; do
         rm $OLD_TEMPLATE
     done < $TEMP
 
-    echo "= Removing temporary backup snapshot ="
-    delete_snapshot $SNAPSHOT_UUID
-    echo "Done."
-
     echo "== Backup for $VM_NAME finished at $(date) =="
     echo " "
 done <${VM_NAME_FILE}

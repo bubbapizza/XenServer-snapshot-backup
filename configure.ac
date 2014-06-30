@@ -4,6 +4,7 @@
 AC_PREREQ(2.59)
 AC_INIT([xenserver-backup], [2.0], [swilson@acs.on.ca])
 AM_INIT_AUTOMAKE
+AC_PROG_MKDIR_P
 
 # Allow the user to override the default file names & directories.
 AC_ARG_VAR(XVA_PATH, "The default path for xva backups")
@@ -20,6 +21,7 @@ AS_AC_EXPAND(SYSCONFDIR, ${sysconfdir}/${PACKAGE})
 AS_AC_EXPAND(BINDIR, ${sysconfdir}/${PACKAGE})
 AC_SUBST(XVA_PATH, [${XVA_PATH:-${LOCALSTATEDIR}}])
 AC_SUBST(XE_HOST, [${XVA_HOST:-"127.0.0.1"}])
+AC_SUBST(XVA_RETAIN, [${XVA_RETAIN:-4}])
 AC_SUBST(XE_PWF, [${XE_PWF:-${SYSCONFDIR}/xe.pwf}])
 AC_SUBST(VM_NAME_FILE, [${VM_NAME_FILE:-${SYSCONFDIR}/vm-backup-list}])
 

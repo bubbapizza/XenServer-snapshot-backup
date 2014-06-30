@@ -14,13 +14,14 @@
 # Temporary snapshots will be use this as a suffix.
 # SNAPSHOT_SUFFIX=@SNAPSHOT_SUFFIX@
 
-# Temporary backup templates will use this as a suffix.
-# TEMP_SUFFIX=@TEMP_SUFFIX@
-
 # Backup templates will use this as a suffix, along with the date.
 # BACKUP_SUFFIX=@BACKUP_SUFFIX@
 
 # This is the default path to dump the xva backups to.  Normally this
 # directory would be mounted over NFS to a NAS device of some sort. 
 # XVA_PATH=@XVA_PATH@
+
+# Specify the number of backups to keep.  This applies for all VMs.
+# XVA_RETAIN=@XVA_RETAIN@
+
 
