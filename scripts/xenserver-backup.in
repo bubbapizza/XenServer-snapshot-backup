@@ -91,16 +91,17 @@ while read VM_NAME; do
     echo " "
 done <${VM_NAME_FILE}
 
-${XE} vdi-list sr-uuid=${TEMPLATE_SR} > ${XVA_PATH}/mapping.txt
 ${XE} vbd-list > ${XVA_PATH}/vbd-mapping.txt
 
 echo "=== Snapshot backup finished at $(date) ==="
 echo " "
-echo "=== Metadata backup started at $(date) ==="
-echo " "
 
 #Backup Pool meta-data:
 ${XE} pool-dump-database file-name=${XVA_PATH}/pool_metadata
+
+echo "=== Metadata backup started at $(date) ==="
+echo " "
+
 
 # NOTE: to restore metadata use:
 # xe pool-restore-database file-name=@XVA_PATH@

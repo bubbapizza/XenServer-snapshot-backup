@@ -1,4 +1,6 @@
 # This is a sample crontab file that you can symlink to under /etc/cron.d
 # in order to schedule the backup time.
 #
-2 1 * * * root @BINDIR@/xenserver-backup > @LOCALSTATEDIR@/log/xenserver-backup.log 2>&1
+
+# By default, run full xva backups every Sat. morning at 1:02AM.
+2 1 * * 6 root @BINDIR@/xenserver-backup > @LOCALSTATEDIR@/log/xenserver-backup.log 2>&1

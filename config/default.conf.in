@@ -20,15 +20,6 @@
 # Backup templates will use this as a suffix, along with the date.
 # BACKUP_SUFFIX=@BACKUP_SUFFIX@
 
-# Choose what day to run weekly and monthly backups on.  Each one must 
-# be the first 3 letters of the day of the week.
-# WEEKLY_ON=@WEEKLY_BACKUP_DAY@  
-# MONTHLY_ON=@MONTHLY_BACKUP_DAY@
-
-# This is the name of the storage repository to dump the snapshotted 
-# templates to.
-# TEMPLATE_SR=@TEMPLATE_SR@
-
 # This is the default path to dump the xva backups to.  Normally this
 # directory would be mounted over NFS to a NAS device of some sort. 
 # XVA_PATH=@XVA_PATH@
