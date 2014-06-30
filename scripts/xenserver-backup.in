@@ -25,7 +25,7 @@ touch $LOCKFILE
 
 
 # Date format must be %Y%m%d so we can sort them
-BACKUP_DATE=$(date +"%Y%m%d")
+BACKUP_DATE=$(date +"%Y%m%d%H%M")
 
 # Temporary file
 TEMP=/tmp/snapback.$$
@@ -77,7 +77,14 @@ sed '/^#/d' $VM_NAME_FILE | while read VM_NAME; do
     #
     echo "= Removing old XVA files ="
 
-    ls -1 ${XVA_PATH}/${XVA_PREFIX}-*.xva | sort -n | head -n ${XVA_RETAIN}> $TEMP
+    # This is kind of a goofy way of figuring out what files to delete
+    # but it works.  You combine a list of all the xva files plus a list
+    # of the the most recent ones.  The most recent ones will appear 
+    # twice in the list.  Then, we use "uniq -u" to pick of the ones
+    # that only appear once in the list and those are the files we blow
+    # away.
+    #
+    (ls -t ${XVA_PATH}/${XVA_PREFIX}-*.xva | head -n ${XVA_RETAIN} ; ls *.xva) | sort | uniq -u > $TEMP
     while read OLD_TEMPLATE; do
         echo "Removing : $OLD_TEMPLATE"
         rm $OLD_TEMPLATE
@@ -93,7 +100,9 @@ echo "=== Snapshot backup finished at $(date) ==="
 echo " "
 
 #Backup Pool meta-data:
+mv ${XVA_PATH}/pool_metadata ${XVA_PATH}/pool_metadata.tmp
 ${XE} pool-dump-database file-name=${XVA_PATH}/pool_metadata
+rm ${XVA_PATH}/pool_metadata.tmp
 
 echo "=== Metadata backup started at $(date) ==="
 echo " "
