@@ -35,8 +35,8 @@ echo " "
 echo "=== Snapshot backup started at $(date) ==="
 echo " "
 
-# Loop through all the VMs listed in $VM_NAME_FILE.
-while read VM_NAME; do
+# Loop through all the VMs listed.
+sed '/^#/d' $VM_NAME_FILE | while read VM_NAME; do
 
     echo " "
     echo "== Backup for $VM_NAME started at $(date) =="
@@ -85,7 +85,7 @@ while read VM_NAME; do
 
     echo "== Backup for $VM_NAME finished at $(date) =="
     echo " "
-done <${VM_NAME_FILE}
+done 
 
 ${XE} vbd-list > ${XVA_PATH}/vbd-mapping.txt
 
