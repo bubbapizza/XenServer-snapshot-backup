@@ -2,10 +2,10 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([xenserver-backup], [1.4.1], [swilson@acs.on.ca])
+AC_INIT([xenserver-backup], [2.0], [swilson@acs.on.ca])
 AM_INIT_AUTOMAKE
 
-# Allow the user to pass the progress install directory as a variable.
+# Allow the user to override the default file names & directories.
 AC_ARG_VAR(XVA_PATH, "The default path for xva backups")
 AC_ARG_VAR(XE_HOST, "The xe hostname or IP address.")
 AC_ARG_VAR(XE_PWF, "The filepath for the xe credentials file")

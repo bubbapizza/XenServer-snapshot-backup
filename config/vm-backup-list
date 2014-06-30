@@ -1,0 +1,3 @@
+# Put the list of VMs to be backed up in this file.  One VM name
+# per line.  The VM names are pulled from the 'name-label' attribute 
+# for the VM.  Lines that start with a '#' will be ignored.

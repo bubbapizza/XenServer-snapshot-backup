@@ -7,18 +7,9 @@
 # Uncomment any of the variables below to change their default values.
 
 #
-# Set the xenserver hostname/ip and pwf file for the xe command.
-# The pwf file has two lines, first line is the username, second
-# line is the password for logging into the host.
+# Set the xenserver hostname/ip.
 #
 # XE_HOST=@XE_HOST@
-# XE_PWF_FILE=@XE_PWF@
-
-# The list of VMs that get backed up is stored in this file.  The file
-# format is one VM per line.  Each line must have the name of the VM.
-# The VM name is stored in the 'name-label' attribute of the vm. 
-#
-# VM_NAME_FILE=@VM_NAME_FILE@
 
 # Temporary snapshots will be use this as a suffix.
 # SNAPSHOT_SUFFIX=@SNAPSHOT_SUFFIX@
