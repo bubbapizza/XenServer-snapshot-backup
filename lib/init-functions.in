@@ -40,7 +40,7 @@ VM_NAME_FILE=@VM_NAME_FILE@
 
 
 # Build the xe command with all the connection info.
-XE="echo xe -h ${XE_HOST} -pwf ${XE_PWF}"
+XE="xe -h ${XE_HOST} -pwf ${XE_PWF}"
 
 
 #########
