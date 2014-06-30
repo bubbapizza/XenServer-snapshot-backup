@@ -36,11 +36,11 @@ MONTHLY_ON=${MONTHLY_ON:-'@MONTHLY_BACKUP_DAY@'}
 TEMPLATE_SR=${TEMPLATE_SR:-'@TEMPLATE_SR@'}
 XVA_PATH=${XVA_PATH:-'@XVA_PATH@'}
 XE_PWF=@XE_PWF@
-VM_NAME_LIST=@VM_NAME_LIST@
+VM_NAME_FILE=@VM_NAME_FILE@
 
 
 # Build the xe command with all the connection info.
-XE="xe -h ${XE_HOST} -pwf ${XE_PWF}"
+XE="echo xe -h ${XE_HOST} -pwf ${XE_PWF}"
 
 
 #########
