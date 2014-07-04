@@ -1,23 +1,38 @@
-This is an attempt at packaging the xenserver backup script by 
-Mark Round and Luis Davim.  
+This is an autoconf package for a script that does xva backups of a 
+list of VMs for xenserver.  It will preserve the last few backups and
+automatically delete old ones.  The destination for the xva files and number 
+of xva files to retain are specified in a config file.
 
-The idea is to make an autotools package that you can just download and 
-install on a linux VM that can act as a backup appliance.  It will control 
-snapshot-based backups to either another storage repository or to xva 
-files for DR sites.
+The script is meant to be run every so often via a cronjob and was 
+originally based on a script written by Mark Round and Luis Davim.  
 
-As for how the backup script works, from Luis' blog:
+This package is a standard autoconf package which means you extract the
+tarball and install it by running:
 
-You can configure the scheduling and retention for each VM, from the 
-XenCenter, by adding the following custom fields:
+   ./configure
+   make
+   make install
 
-    backup - to set the schedule for the template backups 
-             (daily, monthly or weekly)
-    retain - to set the number of backup templates to keep
-    xva_backup - to set the schedule for the xva backups 
-                 (daily, monthly or weekly)
-    xva_retain - to set the number of xva files to keep
+After a default installation, here are some quick and dirty instructions 
+for getting backups up and running:
+
+1) cd to the config directory /usr/local/etc/xenserver-backup
+
+2) Edit the default.conf file and set the IP address of a xenserver host 
+   in your cluster
+
+2) Edit the xe.pwf file and put the xenserver host's username on line 1
+   and password on line 2.
+
+3) Edit the vm-backup-list file and add the names of the VMs to 
+   backup, one VM per line.  The name must match whatever the
+   "name-label" attribute is of the VM.
   
+4) schedule the job using the sample crontab entry in default.crontab
+
+By default, xva backup files will be saved to /usr/local/var/lib/backup 
+and it will retain the last 4 xva files.  
+
 
 Shawn Wilson
 swilson@acs.on.ca

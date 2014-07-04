@@ -1,13 +1,32 @@
 #!/bin/bash
-# snapback.sh 1.4
-# Simple script to create regular snapshot-based backups for Citrix Xenserver
-# Mark Round, scripts@markround.com
-# http://www.markround.com/snapback
 #
-# 1.4 : Modifications by Luis Davim to support XVA backups with independent scheduling
-# 1.3 : Added basic lockfile
-# 1.2 : Tidied output, removed VDIs before deleting snapshots and templates
-# 1.1 : Added missing force=true paramaters to snapshot uninstall calls.
+#############
+#    Copyright (C) 2014 Shawn Wilson <swilson@acs.on.ca>
+#       
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#############
+#
+#
+# This backup script was originally based on a snapshot-based backup
+# script by Mark Round and Luis Davim.  It takes a snapshots of VMs
+# and does an XVA backup of each one to a backup directory.  The list
+# of VMs is stored in a config file.
+#
+# After backing up, the script deletes any old backups while preserving 
+# the last n backups.  n is also specified in a config file.  For typical
+# usage, you'd schedule this script to run once a week via a cron job.
+#  
 
 prefix=@prefix@
 
