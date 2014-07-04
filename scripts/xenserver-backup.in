@@ -84,7 +84,7 @@ sed '/^#/d' $VM_NAME_FILE | while read VM_NAME; do
     # that only appear once in the list and those are the files we blow
     # away.
     #
-    (ls -t ${XVA_PATH}/${XVA_PREFIX}-*.xva | head -n ${XVA_RETAIN} ; ls *.xva) | sort | uniq -u > $TEMP
+    (ls -t ${XVA_PATH}/${XVA_PREFIX}-*.xva | head -n ${XVA_RETAIN} ; ls ${XVA_PATH}/*.xva) | sort | uniq -u > $TEMP
     while read OLD_TEMPLATE; do
         echo "Removing : $OLD_TEMPLATE"
         rm $OLD_TEMPLATE
