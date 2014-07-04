@@ -3,4 +3,4 @@
 #
 
 # By default, run full xva backups every Sat. morning at 1:02AM.
-2 1 * * 6 root @BINDIR@/xenserver-backup > @LOCALSTATEDIR@/log/xenserver-backup.log 2>&1
+2 1 * * 6 root @BINDIR@/xenserver-backup >>@LOGDIR@/xenserver-backup.log 2>>@LOGDIR@/xenserver-backup.err.log

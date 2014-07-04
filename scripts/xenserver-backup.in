@@ -29,6 +29,8 @@
 #  
 
 prefix=@prefix@
+datarootdir=@datarootdir@
+datadir=@datadir@
 
 
 # Initialize functions and package variables.
