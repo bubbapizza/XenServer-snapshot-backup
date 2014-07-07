@@ -88,7 +88,7 @@ sed '/^#/d' $VM_NAME_FILE | while read VM_NAME; do
     echo "= Exporting snapshot to XVA file ="
     XVA_PREFIX="${VM_NAME}-${BACKUP_SUFFIX}"
     XVA_FILE="${XVA_PATH}/${XVA_PREFIX}-${BACKUP_DATE}.xva"
-    ${XE} vm-export vm=${SNAPSHOT_UUID} filename="${XVA_FILE}"
+    ${XE} vm-export vm=${SNAPSHOT_UUID} filename="${XVA_FILE}" compress=true
     echo "Done."
     
 
@@ -105,7 +105,7 @@ sed '/^#/d' $VM_NAME_FILE | while read VM_NAME; do
     # that only appear once in the list and those are the files we blow
     # away.
     #
-    (ls -t "${XVA_PATH}/${XVA_PREFIX}-*.xva" | head -n ${XVA_RETAIN} ; ls ${XVA_PATH}/*.xva) | sort | uniq -u > $TEMP
+    (ls -t "${XVA_PATH}/${XVA_PREFIX}"-*.xva | head -n ${XVA_RETAIN} ; ls "${XVA_PATH}"/*.xva) | sort | uniq -u > $TEMP
     while read OLD_TEMPLATE; do
         echo "Removing : $OLD_TEMPLATE"
         rm $OLD_TEMPLATE

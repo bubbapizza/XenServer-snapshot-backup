@@ -22,7 +22,7 @@
 
 
 AC_PREREQ(2.59)
-AC_INIT([xenserver-backup], [2.0.1], [swilson@acs.on.ca])
+AC_INIT([xenserver-backup], [2.0.2], [swilson@acs.on.ca])
 AM_INIT_AUTOMAKE
 AC_PROG_MKDIR_P
 
